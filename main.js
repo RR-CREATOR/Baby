@@ -1,7 +1,7 @@
 status = "";
 objects = [];
 number = "";
-let song;
+song = "";
 
 function preload(){
     song = loadSound("alarm.mp3");
@@ -11,10 +11,25 @@ function setup(){
     canvas = createCanvas(380, 380);
     canvas.center();
     video = createCapture(VIDEO);
-    video.hide();
     video.size(380, 380);
+    video.hide();
     objectDetector = ml5.objectDetector('cocossd', modelLoaded);
     document.getElementById("status").innerHTML = "Status: Detecting";
+}
+
+function modelLoaded(){
+    console.log("Model Loaded!");
+    status = true;
+    objectDetector.detect(video, gotResult);
+}
+
+function gotResult(error, results){
+    if(error){
+        console.error(error);
+    }
+    console.log(results);
+    objects = results;
+    number = objects.length;
 }
 
 function draw(){
@@ -33,7 +48,7 @@ function draw(){
             noFill();
             stroke("#FF0000");
             rect(objects[i].x, objects[i].y, objects[i].width, objects[i].height);
-            } else if(objects.length == 0){
+            } else if(objects.length < 0){
                 document.getElementById("baby").innerHTML = "Baby Not Detected";
                 song.play();
             } else{
@@ -42,19 +57,4 @@ function draw(){
             }
         }
     }
-}
-
-function modelLoaded(){
-    console.log("Model Loaded!");
-    status = true;
-    objectDetector.detect(video, gotResult);
-}
-
-function gotResult(error, results){
-    if(error){
-        console.error(error);
-    }
-    console.log(results);
-    objects = results;
-    number = objects.length;
 }
